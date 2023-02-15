@@ -1,7 +1,13 @@
-.App {
+.app {
   text-align: center;
 }
 
+.sessionSettings {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+}
+/*
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -36,3 +42,4 @@
     transform: rotate(360deg);
   }
 }
+*/
