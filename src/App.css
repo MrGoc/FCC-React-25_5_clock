@@ -7,6 +7,48 @@
   flex-direction: row;
   justify-content: space-around;
 }
+
+#break-label,
+#session-label {
+  margin-bottom: -2px;
+}
+
+#time-left {
+  font-size: 40px;
+  font-weight: 500;
+  margin-top: -15px;
+}
+
+.timer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.timerButtons {
+  margin-top: 10px;
+}
+
+.timerDisplay {
+  margin-top: 20px;
+  padding-top: -15px;
+  padding-bottom: 10px;
+  border: 4px solid #10437e;
+  border-radius: 25px;
+  height: 100px;
+  width: 200px;
+}
+
+button {
+  background-color: rgb(103, 158, 161);
+  border: none;
+}
+
+span {
+  font-size: large;
+  font-weight: 600;
+}
+
 /*
 .App-logo {
   height: 40vmin;
