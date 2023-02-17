@@ -7,7 +7,7 @@ import {
   faPause,
   faRepeat,
 } from "@fortawesome/free-solid-svg-icons";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const defaultBreakLen = 5;
 const defaultSessionLen = 25;
@@ -19,8 +19,28 @@ const decSession = "decSession";
 const counterStarted = "counterStarted";
 const counterStopped = "counterStopped";
 const counterPaused = "counterPaused";
-//const actionStart = "actionStart";
-//const actionPaused = "actionPaused";
+const sessionNormal = "sessionNormal";
+const sessionBreak = "sessionBreak";
+
+function useInterval(callback, delay) {
+  const savedCallback = useRef();
+
+  // Remember the latest function.
+  useEffect(() => {
+    savedCallback.current = callback;
+  }, [callback]);
+
+  // Set up the interval.
+  useEffect(() => {
+    function tick() {
+      savedCallback.current();
+    }
+    if (delay !== null) {
+      let id = setInterval(tick, delay);
+      return () => clearInterval(id);
+    }
+  }, [delay]);
+}
 
 function App() {
   const [breakLen, setBreakLen] = useState(defaultBreakLen);
@@ -28,6 +48,8 @@ function App() {
   const [counterMin, setCounterMin] = useState(defaultSessionLen);
   const [counterSec, setCounterSec] = useState(defaultSec);
   const [counterActivity, setCounterActivity] = useState(counterStopped);
+  const [sessionType, setSessionType] = useState(sessionNormal);
+  const [timerLabel, setTimerLabel] = useState("Session");
 
   function handleReset() {
     setCounterActivity(counterStopped);
@@ -35,13 +57,18 @@ function App() {
     setSessionLen(defaultSessionLen);
     setCounterMin(defaultSessionLen);
     setCounterSec(defaultSec);
+    setTimerLabel("Session");
   }
 
   function handleStartPause() {
-    if (counterActivity === counterStopped || counterActivity === counterPaused)
+    if (
+      counterActivity === counterStopped ||
+      counterActivity === counterPaused
+    ) {
       setCounterActivity(counterStarted);
-    else if (counterActivity === counterStarted)
+    } else if (counterActivity === counterStarted) {
       setCounterActivity(counterPaused);
+    }
   }
 
   function handleIncAndDec(action) {
@@ -76,6 +103,60 @@ function App() {
     }
   }
 
+  useInterval(
+    () => {
+      let sec = counterSec - 1;
+      let min = counterMin;
+      if (sec === -1) {
+        min--;
+        setCounterSec(59);
+        setCounterMin(min);
+      } else setCounterSec(sec);
+
+      if (min === -1) {
+        if (sessionType === sessionNormal) {
+          setTimerLabel("Break");
+          setSessionType(sessionBreak);
+          setCounterMin(breakLen);
+        } else {
+          setTimerLabel("Session");
+          setSessionType(sessionNormal);
+          setCounterMin(sessionLen);
+        }
+        setCounterSec(0);
+      }
+      /*
+      if (sec === 0 && min === 0) {
+        if (sessionType === sessionNormal) setTimerLabel("Break");
+        else setTimerLabel("Session");
+      }
+      */
+    },
+    counterActivity === counterStopped || counterActivity === counterPaused
+      ? null
+      : 1000
+  );
+  /*
+  function timer() {
+    let sec = counterSec - 1;
+    let min = counterMin;
+    if (sec === -1) {
+      setCounterSec(59);
+      min--;
+    } else setCounterSec(sec);
+
+    if (min === -1) {
+      if (sessionType === sessionNormal) {
+        setSessionType(sessionBreak);
+        setCounterMin(breakLen);
+      } else {
+        setSessionType(sessionNormal);
+        setCounterMin(sessionLen);
+      }
+      setCounterSec(0);
+    }
+  }
+*/
   return (
     <div className="app">
       <h1>25 + 5 Clock</h1>
@@ -90,6 +171,7 @@ function App() {
         counterActivity={counterActivity}
         handleReset={handleReset}
         handleStartPause={handleStartPause}
+        timerLabel={timerLabel}
       />
     </div>
   );
@@ -152,6 +234,7 @@ function Timer({
   counterActivity,
   handleReset,
   handleStartPause,
+  timerLabel,
 }) {
   const minutes = counterMin.toString();
   const seconds = counterSec.toString();
@@ -159,7 +242,7 @@ function Timer({
   return (
     <div className="timer">
       <div className="timerDisplay">
-        <h3 id="timer-label">Session</h3>
+        <h3 id="timer-label">{timerLabel}</h3>
         <p id="time-left">{counter}</p>
       </div>
       <div className="timerButtons">
