@@ -50,6 +50,7 @@ function App() {
   const [counterActivity, setCounterActivity] = useState(counterStopped);
   const [sessionType, setSessionType] = useState(sessionNormal);
   const [timerLabel, setTimerLabel] = useState("Session");
+  let audioRef = useRef(null);
 
   function handleReset() {
     setCounterActivity(counterStopped);
@@ -58,6 +59,8 @@ function App() {
     setCounterMin(defaultSessionLen);
     setCounterSec(defaultSec);
     setTimerLabel("Session");
+    audioRef.current.pause();
+    audioRef.current.currentTime = 0;
   }
 
   function handleStartPause() {
@@ -107,6 +110,7 @@ function App() {
     () => {
       let sec = counterSec - 1;
       let min = counterMin;
+
       if (sec === -1) {
         min--;
         setCounterSec(59);
@@ -124,6 +128,7 @@ function App() {
           setCounterMin(sessionLen);
         }
         setCounterSec(0);
+        audioRef.current.play();
       }
       /*
       if (sec === 0 && min === 0) {
@@ -173,6 +178,11 @@ function App() {
         handleStartPause={handleStartPause}
         timerLabel={timerLabel}
       />
+      <audio
+        src="https://raw.githubusercontent.com/freeCodeCamp/cdn/master/build/testable-projects-fcc/audio/BeepSound.wav"
+        id="beep"
+        ref={audioRef}
+      ></audio>
     </div>
   );
 }
